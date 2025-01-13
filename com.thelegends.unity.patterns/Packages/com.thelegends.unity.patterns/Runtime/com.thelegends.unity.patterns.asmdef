@@ -1,0 +1,14 @@
+{
+    "name": "com.thelegends.unity.patterns",
+    "rootNamespace": "com.thelegends.unity.patterns",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
