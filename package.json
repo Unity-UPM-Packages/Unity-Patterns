@@ -1,0 +1,21 @@
+{
+  "name": "com.thelegends.unity.patterns",
+  "displayName": "Unity Patterns",
+  "description": "Unity Patterns use with Uniy3D",
+  "keywords": [],
+  "version": "1.0.0",
+  "unity": "2022.3",
+  "documentationUrl": "https://github.com/Unity-UPM-Packages/Unity-Patterns#documentation",
+  "changelogUrl": "https://github.com/Unity-UPM-Packages/Unity-Patterns/releases",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "repository": "https://github.com/Unity-UPM-Packages/Unity-Patterns.git",
+    "url": "https://github.com/Unity-UPM-Packages/Unity-Patterns.git"
+  },
+  "author": {
+    "name": "Unity-UPM-Packages",
+    "url": "https://github.com/Unity-UPM-Packages"
+  },
+  "dependencies": {}
+}
