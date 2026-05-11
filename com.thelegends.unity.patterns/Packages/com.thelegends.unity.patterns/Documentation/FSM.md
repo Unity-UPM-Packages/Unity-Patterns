@@ -1,41 +1,41 @@
-# Kiến trúc FSM (Finite State Machine) - TheLegends Unity Patterns
+# FSM Architecture (Finite State Machine) - TheLegends Unity Patterns
 
-Hệ thống FSM (Finite State Machine) này là một Design Pattern cực kỳ nhẹ và độc lập (Pure C#) được cung cấp trong gói `Unity-Patterns`. Nó được thiết kế với tiêu chí **Zero GC** (Không tạo rác bộ nhớ) và hiệu năng cao, thích hợp cho việc quản lý trạng thái của AI, Player, Flow của một màn chơi, hoặc luồng giao diện UI.
+This FSM (Finite State Machine) system is an extremely lightweight and independent (Pure C#) Design Pattern provided in the `Unity-Patterns` package. It is designed with a **Zero GC** (Zero Garbage Collection) and high-performance criteria, suitable for managing AI states, Player states, Level Flow, or UI flow.
 
-## 1. Các thành phần chính
+## 1. Core Components
 
-Hệ thống bao gồm hai thành phần cốt lõi nằm trong namespace `TheLegends.Base.FSM`:
+The system includes two core components located in the `TheLegends.Base.FSM` namespace:
 
 ### `IState<T>`
-Là một interface đại diện cho một Trạng thái. Bất kỳ Trạng thái nào cũng cần phải implement các phương thức vòng đời sau:
-*   `OnEnter(T context)`: Gọi một lần duy nhất khi máy trạng thái chuyển sang trạng thái này.
-*   `OnUpdate(T context)`: Gọi mỗi frame (thường từ hàm Update của MonoBehaviour).
-*   `OnFixedUpdate(T context)`: Gọi mỗi frame vật lý (thường từ hàm FixedUpdate của MonoBehaviour).
-*   `OnLateUpdate(T context)`: Gọi cuối mỗi frame (thường từ hàm LateUpdate của MonoBehaviour).
-*   `OnExit(T context)`: Gọi một lần duy nhất khi máy trạng thái chuyển sang trạng thái khác (hoặc bị kết thúc).
+An interface representing a State. Any State needs to implement the following lifecycle methods:
+*   `OnEnter(T context)`: Called exactly once when the state machine transitions to this state.
+*   `OnUpdate(T context)`: Called every frame (usually from a MonoBehaviour's Update).
+*   `OnFixedUpdate(T context)`: Called every physics frame (usually from a MonoBehaviour's FixedUpdate).
+*   `OnLateUpdate(T context)`: Called at the end of every frame (usually from a MonoBehaviour's LateUpdate).
+*   `OnExit(T context)`: Called exactly once when the state machine transitions to another state (or is terminated).
 
-Tham số `T context` là chủ thể (Owner) của FSM (ví dụ: một component `PlayerController`), qua đó State có thể thao tác với chủ thể mà không cần ép kiểu hay truyền dữ liệu qua lại, giúp loại bỏ Boxing/Unboxing.
+The parameter `T context` is the owner of the FSM (e.g., a `PlayerController` component). Through this, the State can interact with the owner without casting or passing data back and forth, eliminating Boxing/Unboxing.
 
 ### `StateMachine<T>`
-Là bộ điều khiển trung tâm lưu giữ trạng thái hiện tại (`CurrentState`) và Context.
-*   `ChangeState(IState<T> newState)`: Dừng trạng thái hiện tại (gọi `OnExit`) và chuyển sang trạng thái mới (gọi `OnEnter`).
-*   `Update()`, `FixedUpdate()`, `LateUpdate()`: Các phương thức dùng để truyền lời gọi vòng lặp từ Unity tới trạng thái hiện tại.
+The central controller that holds the current state (`CurrentState`) and the Context.
+*   `ChangeState(IState<T> newState)`: Stops the current state (calls `OnExit`) and transitions to the new state (calls `OnEnter`).
+*   `Update()`, `FixedUpdate()`, `LateUpdate()`: Methods used to pass Unity loop calls to the current state.
 
-## 2. Hướng dẫn sử dụng
+## 2. Usage Guide
 
-### Bước 1: Định nghĩa Context và các States
-Context có thể là bất kỳ class nào (thường là một `MonoBehaviour` đại diện cho đối tượng chính).
+### Step 1: Define Context and States
+The Context can be any class (usually a `MonoBehaviour` representing the main object).
 
 ```csharp
 using UnityEngine;
 using TheLegends.Base.FSM;
 
-// 1. Lớp Context
+// 1. Context Class
 public class EnemyController : MonoBehaviour
 {
     public StateMachine<EnemyController> StateMachine { get; private set; }
     
-    // Các State instances có thể khởi tạo sẵn để tránh tạo rác (Zero GC)
+    // State instances can be pre-initialized to avoid memory allocation (Zero GC)
     public EnemyIdleState IdleState { get; private set; }
     public EnemyChaseState ChaseState { get; private set; }
 
@@ -44,35 +44,35 @@ public class EnemyController : MonoBehaviour
 
     private void Awake()
     {
-        // Khởi tạo StateMachine, truyền this (EnemyController) làm context
+        // Initialize StateMachine, passing 'this' (EnemyController) as context
         StateMachine = new StateMachine<EnemyController>(this);
 
-        // Khởi tạo các State
+        // Initialize States
         IdleState = new EnemyIdleState();
         ChaseState = new EnemyChaseState();
     }
 
     private void Start()
     {
-        // Bắt đầu với trạng thái Idle
+        // Start with Idle state
         StateMachine.ChangeState(IdleState);
     }
 
-    // Pass các vòng lặp Unity cho StateMachine
+    // Pass Unity loops to StateMachine
     private void Update() => StateMachine.Update();
     private void FixedUpdate() => StateMachine.FixedUpdate();
     private void LateUpdate() => StateMachine.LateUpdate();
 }
 ```
 
-### Bước 2: Triển khai IState<T>
-Tạo các class implement interface `IState<EnemyController>`.
+### Step 2: Implement IState<T>
+Create classes implementing the `IState<EnemyController>` interface.
 
 ```csharp
 using TheLegends.Base.FSM;
 using UnityEngine;
 
-// Trạng thái đứng yên
+// Idle State
 public class EnemyIdleState : IState<EnemyController>
 {
     private float waitTime;
@@ -88,7 +88,7 @@ public class EnemyIdleState : IState<EnemyController>
         waitTime -= Time.deltaTime;
         if (waitTime <= 0 && context.Target != null)
         {
-            // Chuyển sang trạng thái Chase
+            // Transition to Chase state
             context.StateMachine.ChangeState(context.ChaseState);
         }
     }
@@ -101,7 +101,7 @@ public class EnemyIdleState : IState<EnemyController>
     }
 }
 
-// Trạng thái truy đuổi
+// Chase State
 public class EnemyChaseState : IState<EnemyController>
 {
     public void OnEnter(EnemyController context)
@@ -117,7 +117,7 @@ public class EnemyChaseState : IState<EnemyController>
             return;
         }
 
-        // Di chuyển tới mục tiêu
+        // Move towards target
         context.transform.position = Vector3.MoveTowards(
             context.transform.position, 
             context.Target.position, 
@@ -131,8 +131,8 @@ public class EnemyChaseState : IState<EnemyController>
 }
 ```
 
-## 3. Tại sao chọn kiến trúc này?
+## 3. Why choose this architecture?
 
-*   **Không phụ thuộc MonoBehaviour**: FSM có thể được dùng cho C# objects thông thường, không nhất thiết phải là Unity Objects.
-*   **Zero GC (Garbage Collection) khi chạy**: Context được truyền dưới dạng Generic `<T>`, các State được khởi tạo một lần duy nhất lúc Awake. Nhờ vậy, quá trình ChangeState diễn ra hoàn toàn không tạo thêm bộ nhớ rác, đảm bảo FPS mượt mà cho Mobile Game.
-*   **Dễ mở rộng và Test**: Logic từng State được cô lập rõ ràng giúp dễ dàng Unit Test các logic này mà không cần Unity Engine (sử dụng NUnit với EditMode tests).
+*   **No MonoBehaviour Dependency**: The FSM can be used for normal C# objects, not necessarily Unity Objects.
+*   **Zero GC (Garbage Collection) at Runtime**: The Context is passed as a Generic `<T>`, and States are instantiated only once during Awake. Thanks to this, the `ChangeState` process creates absolutely no garbage memory, ensuring smooth FPS for Mobile Games.
+*   **Easy to Extend and Test**: The logic of each State is clearly isolated, making it easy to Unit Test these logic blocks without the Unity Engine (using NUnit with EditMode tests).

@@ -25,8 +25,8 @@ The recommended installation method is though the unity package manager.
 
 ## Documentation
 
-### Project Setup
+Detailed usage guides and examples for each pattern can be found in the `Documentation` folder:
 
-```csharp
-// TODO
-```
+- [Factory Pattern](../Documentation/Factory.md)
+- [Finite State Machine (FSM)](../Documentation/FSM.md)
+- [Singleton Pattern](../Documentation/Singleton.md)

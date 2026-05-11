@@ -1,19 +1,19 @@
 # Singleton - TheLegends Unity Patterns
 
-Kiến trúc Singleton được cung cấp trong package này là một class C# thuần (Pure C#), không phụ thuộc vào `MonoBehaviour`. Hệ thống Singleton này cung cấp giải pháp an toàn luồng (Thread-safe) và cơ chế Lifecycle rõ ràng giúp việc khởi tạo và dọn dẹp bộ nhớ trở nên dễ kiểm soát.
+The Singleton architecture provided in this package is a Pure C# class, independent of `MonoBehaviour`. This Singleton system provides a Thread-safe solution and a clear Lifecycle mechanism that makes initialization and memory cleanup easy to control.
 
-## 1. Ưu điểm nổi bật
+## 1. Key Features
 
-*   **Thread-Safe (An toàn đa luồng):** Sử dụng cơ chế khóa đúp (Double-Check Locking) thông qua `lock (typeof(T))`, đảm bảo rằng instance chỉ được tạo ra đúng một lần ngay cả khi có nhiều luồng cùng gọi tới `Instance` ở cùng một thời điểm.
-*   **Không gắn với Unity Hierarchy:** Tránh được các vấn đề phức tạp liên quan tới scene load/unload. Thích hợp cho Data Manager, Service, hoặc Network Manager.
-*   **Lifecycle Management (Quản lý vòng đời):** Cung cấp các hàm ảo (`virtual`) như `OnInitializing()`, `OnInitialized()`, `ClearSingleton()` giúp bạn có nơi an toàn để thiết lập hoặc dọn dẹp dữ liệu (đặc biệt hữu ích khi cần reset lại màn chơi hoặc Unit Test).
+*   **Thread-Safe:** Uses a Double-Check Locking mechanism via `lock (typeof(T))`, ensuring that the instance is created exactly once even when multiple threads call `Instance` simultaneously.
+*   **Not tied to Unity Hierarchy:** Avoids complex issues related to scene load/unload. Suitable for Data Managers, Services, or Network Managers.
+*   **Lifecycle Management:** Provides `virtual` methods like `OnInitializing()`, `OnInitialized()`, `ClearSingleton()` to give you a safe place to setup or cleanup data (especially useful when you need to reset a level or do Unit Testing).
 
-## 2. Hướng dẫn sử dụng
+## 2. Usage Guide
 
-### Bước 1: Khởi tạo một class Singleton
-Để biến một class thành Singleton, bạn chỉ cần cho nó kế thừa từ `Singleton<T>` (thuộc namespace `TheLegends.Base.UnitySingleton`). 
+### Step 1: Initialize a Singleton class
+To turn a class into a Singleton, you simply need to inherit from `Singleton<T>` (under the `TheLegends.Base.UnitySingleton` namespace).
 
-*Lưu ý: Do class này có constraint `new()`, bạn bắt buộc phải có một constructor không tham số (mặc định C# tự tạo nếu bạn không định nghĩa constructor nào).*
+*Note: Since this class has a `new()` constraint, you must have a parameterless constructor (C# creates a default one if you don't define any constructor).*
 
 ```csharp
 using UnityEngine;
@@ -23,17 +23,17 @@ public class GameDataManager : Singleton<GameDataManager>
 {
     public int PlayerScore { get; private set; }
 
-    // Gọi ngay trước khi trạng thái chuyển sang Initialized
+    // Called just before the state changes to Initialized
     protected override void OnInitializing()
     {
-        Debug.Log("GameDataManager đang được khởi tạo...");
+        Debug.Log("GameDataManager is initializing...");
         PlayerScore = 0;
     }
 
-    // Gọi sau khi quá trình khởi tạo hoàn tất
+    // Called after initialization is complete
     protected override void OnInitialized()
     {
-        Debug.Log("GameDataManager khởi tạo thành công!");
+        Debug.Log("GameDataManager initialized successfully!");
     }
 
     public void AddScore(int amount)
@@ -41,27 +41,27 @@ public class GameDataManager : Singleton<GameDataManager>
         PlayerScore += amount;
     }
 
-    // Được gọi khi Singleton bị hủy bỏ (DestroyInstance)
+    // Called when the Singleton is destroyed (DestroyInstance)
     public override void ClearSingleton()
     {
-        Debug.Log("Xóa bỏ dữ liệu của GameDataManager");
+        Debug.Log("Clearing GameDataManager data");
         PlayerScore = 0;
     }
 }
 ```
 
-### Bước 2: Truy xuất và sử dụng
-Bất cứ nơi nào trong project, bạn chỉ cần gọi `ClassCuaBan.Instance` để lấy ra object.
+### Step 2: Access and usage
+Anywhere in the project, simply call `YourClass.Instance` to get the object.
 
 ```csharp
 public class UIManager : MonoBehaviour
 {
     private void Start()
     {
-        // Nếu GameDataManager chưa được khởi tạo, nó sẽ tự động được tạo ra mới 
-        // và gọi các hàm OnInitializing / OnInitialized.
+        // If GameDataManager hasn't been initialized, it will be automatically created
+        // and call OnInitializing / OnInitialized methods.
         int score = GameDataManager.Instance.PlayerScore;
-        Debug.Log("Score hiện tại: " + score);
+        Debug.Log("Current Score: " + score);
     }
 
     public void OnEnemyKilled()
@@ -71,11 +71,11 @@ public class UIManager : MonoBehaviour
 }
 ```
 
-## 3. Các API nâng cao
+## 3. Advanced APIs
 
-Ngoài `Instance`, Singleton base class còn hỗ trợ các API giúp bạn chủ động quản lý vòng đời:
+Besides `Instance`, the Singleton base class also supports APIs to help you proactively manage the lifecycle:
 
-*   **`IsInitialized`**: Trả về `true` nếu Singleton này đã chạy qua bước khởi tạo.
-*   **`InitializeSingleton()`**: Hàm này được tự động gọi khi lần đầu tiên gọi `.Instance`. Bạn không cần gọi tay trừ khi bạn muốn ép hệ thống khởi tạo object vào một thời điểm cụ thể (VD: lúc loading screen).
-*   **`DestroyInstance()`**: Phá hủy Singleton hiện tại và đặt `Instance = null`. Trong quá trình phá hủy, hàm `ClearSingleton()` của bạn sẽ được gọi. Tính năng này vô cùng quan trọng khi bạn muốn **Reset hoàn toàn Game State** (ví dụ người chơi ấn nút "Play Again").
-*   **`CreateInstance()`**: Phá hủy Instance hiện tại (nếu có) bằng `DestroyInstance()` và tự động tạo mới một Instance ngay lập tức.
+*   **`IsInitialized`**: Returns `true` if this Singleton has passed the initialization step.
+*   **`InitializeSingleton()`**: This method is called automatically the first time `.Instance` is called. You don't need to call it manually unless you want to force the system to initialize the object at a specific time (e.g., during a loading screen).
+*   **`DestroyInstance()`**: Destroys the current Singleton and sets `Instance = null`. During destruction, your `ClearSingleton()` method will be called. This feature is extremely important when you want to **Completely Reset Game State** (e.g., player clicks "Play Again").
+*   **`CreateInstance()`**: Destroys the current Instance (if any) via `DestroyInstance()` and automatically creates a new Instance immediately.
