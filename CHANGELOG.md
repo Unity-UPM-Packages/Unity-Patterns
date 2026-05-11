@@ -1,3 +1,13 @@
+## [1.0.3](https://github.com/Unity-UPM-Packages/Unity-Patterns/compare/v1.0.2...v1.0.3) (2026-05-11)
+
+
+### Bug Fixes
+
+* Add Factory ([dff8eb0](https://github.com/Unity-UPM-Packages/Unity-Patterns/commit/dff8eb04330ba48b228eda15fbd0af15fbd349f5))
+* add pool ([df1036f](https://github.com/Unity-UPM-Packages/Unity-Patterns/commit/df1036f51f3fcdeee1a05b13ca6dbf485eb435d3))
+* edit wiki ([2929781](https://github.com/Unity-UPM-Packages/Unity-Patterns/commit/2929781741c435c8a80fe1b7f7b8c9ac8ec5c4cc))
+* improve document factory ([327fd85](https://github.com/Unity-UPM-Packages/Unity-Patterns/commit/327fd859d8608d093d24a426406ff0dec9dc63a2))
+
 ## [1.0.2](https://github.com/Unity-UPM-Packages/Unity-Patterns/compare/v1.0.1...v1.0.2) (2026-04-25)
 
 
