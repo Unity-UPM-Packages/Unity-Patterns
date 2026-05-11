@@ -29,4 +29,5 @@ Detailed usage guides and examples for each pattern can be found in the `Documen
 
 - [Factory Pattern](../Documentation/Factory.md)
 - [Finite State Machine (FSM)](../Documentation/FSM.md)
+- [Object Pool Pattern](../Documentation/Pool.md)
 - [Singleton Pattern](../Documentation/Singleton.md)
