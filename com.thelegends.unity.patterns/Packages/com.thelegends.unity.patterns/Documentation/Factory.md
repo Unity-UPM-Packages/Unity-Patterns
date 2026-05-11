@@ -111,3 +111,41 @@ public class BowCreator : Creator<IWeapon>
 ```
 
 The advantage of this architecture is that you can call the `creator.GetProduct()` function to get the Product and allow the `Creator` to insert additional core business logic before and after the Product is created, a highly useful technique for complex software design projects.
+
+## 4. Building an Abstract Factory
+
+While the package does not provide a pre-built Abstract Factory (as it is highly domain-specific to your game), you can easily construct one using the provided `IFactory<T>` and `PrefabFactory<T>` tools. An Abstract Factory is simply an interface that groups multiple related creation methods together.
+
+```csharp
+using UnityEngine;
+using TheLegends.Base.Factory;
+
+// 1. Define your Abstract Factory Interface
+public interface ITeamFactory
+{
+    Bullet CreateBullet();
+    Minion CreateMinion();
+}
+
+// 2. Assemble it using the package's tools
+public class FireTeamFactory : MonoBehaviour, ITeamFactory
+{
+    [SerializeField] private Bullet _fireBulletPrefab;
+    [SerializeField] private Minion _fireMinionPrefab;
+
+    private PrefabFactory<Bullet> _bulletFactory;
+    private PrefabFactory<Minion> _minionFactory;
+
+    private void Awake()
+    {
+        // Initialize the core "engines" provided by the package
+        _bulletFactory = new PrefabFactory<Bullet>(_fireBulletPrefab);
+        _minionFactory = new PrefabFactory<Minion>(_fireMinionPrefab);
+    }
+
+    public Bullet CreateBullet() => _bulletFactory.Create();
+    public Minion CreateMinion() => _minionFactory.Create();
+}
+```
+
+This approach allows your core game logic to depend solely on `ITeamFactory`, ensuring that all spawned objects are consistent (e.g., all belonging to the Fire Team) without coupling your game logic to Unity's instantiation pipeline.
